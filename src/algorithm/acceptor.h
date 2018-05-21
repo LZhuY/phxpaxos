@@ -52,9 +52,9 @@ public:
     int Load(uint64_t & llInstanceID);
 
 //private:
-    BallotNumber m_oPromiseBallot;
-    BallotNumber m_oAcceptedBallot;
-    std::string m_sAcceptedValue;
+    BallotNumber m_oPromiseBallot; //承诺的提议号
+    BallotNumber m_oAcceptedBallot; //接受的提议号
+    std::string m_sAcceptedValue; //接受的内容   
     uint32_t m_iChecksum;
 
     Config * m_poConfig;
@@ -65,7 +65,7 @@ public:
 
 ////////////////////////////////////////////////////////////////
 
-class Acceptor : public Base
+class Acceptor : public Base //非常简单的类，只有两个接口，处理prepare和处理accept
 {
 public:
     Acceptor(

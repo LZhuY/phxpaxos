@@ -29,7 +29,7 @@ See the AUTHORS file for names of contributors.
 namespace phxpaxos
 {
 
-class ProposerState
+class ProposerState //Proposer的状态机，保存了proposer中很重要的字段内容。
 {
 public:
     ProposerState(const Config * poConfig);
@@ -39,21 +39,21 @@ public:
 
     void SetStartProposalID(const uint64_t llProposalID);
 
-    void NewPrepare();
-
+    void NewPrepare(); //生成新议案ID
+    //提出议案后，收到acceptor返回的已经接受的最大议案号和议案内容val
     void AddPreAcceptValue(const BallotNumber & oOtherPreAcceptBallot, const std::string & sOtherPreAcceptValue);
 
     /////////////////////////
 
-    const uint64_t GetProposalID();
+    const uint64_t GetProposalID();//拿到当前议案号
 
-    const std::string & GetValue();
+    const std::string & GetValue();//议案内容，也可能是被acceptor返回的已经接受的内容覆盖掉的。
 
     void SetValue(const std::string & sValue);
 
-    void SetOtherProposalID(const uint64_t llOtherProposalID);
+    void SetOtherProposalID(const uint64_t llOtherProposalID);//acceptor返回的已经接受最大议案ID
 
-    void ResetHighestOtherPreAcceptBallot();
+    void ResetHighestOtherPreAcceptBallot();//发起下一轮的时候重置掉上轮最大议案号。
 
 public:
     uint64_t m_llProposalID;
@@ -120,7 +120,7 @@ public:
 
 public:
     ProposerState m_oProposerState;
-    MsgCounter m_oMsgCounter;
+    MsgCounter m_oMsgCounter; //这里有意思，是用于统计这轮提案的反馈情况。统计收到多少acceptor的通过等。
     Learner * m_poLearner;
 
     bool m_bIsPreparing;

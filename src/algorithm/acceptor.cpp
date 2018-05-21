@@ -217,7 +217,7 @@ AcceptorState * Acceptor :: GetAcceptorState()
     return &m_oAcceptorState;
 }
 
-int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
+int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg) //收到提议接口
 {
     PLGHead("START Msg.InstanceID %lu Msg.from_nodeid %lu Msg.ProposalID %lu",
             oPaxosMsg.instanceid(), oPaxosMsg.nodeid(), oPaxosMsg.proposalid());
@@ -232,7 +232,7 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
 
     BallotNumber oBallot(oPaxosMsg.proposalid(), oPaxosMsg.nodeid());
     
-    if (oBallot >= m_oAcceptorState.GetPromiseBallot())
+    if (oBallot >= m_oAcceptorState.GetPromiseBallot()) //现在的提议号比之前承认的还大
     {
         PLGDebug("[Promise] State.PromiseID %lu State.PromiseNodeID %lu "
                 "State.PreAcceptedID %lu State.PreAcceptedNodeID %lu",
@@ -244,14 +244,14 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
         oReplyPaxosMsg.set_preacceptid(m_oAcceptorState.GetAcceptedBallot().m_llProposalID);
         oReplyPaxosMsg.set_preacceptnodeid(m_oAcceptorState.GetAcceptedBallot().m_llNodeID);
 
-        if (m_oAcceptorState.GetAcceptedBallot().m_llProposalID > 0)
+        if (m_oAcceptorState.GetAcceptedBallot().m_llProposalID > 0) //如果已经有了proposer到了accept阶段，则告诉当前propose前面的提议内容。
         {
             oReplyPaxosMsg.set_value(m_oAcceptorState.GetAcceptedValue());
         }
 
-        m_oAcceptorState.SetPromiseBallot(oBallot);
+        m_oAcceptorState.SetPromiseBallot(oBallot); //更新状态
 
-        int ret = m_oAcceptorState.Persist(GetInstanceID(), GetLastChecksum());
+        int ret = m_oAcceptorState.Persist(GetInstanceID(), GetLastChecksum());//持久化吧
         if (ret != 0)
         {
             BP->GetAcceptorBP()->OnPreparePersistFail();
@@ -279,7 +279,7 @@ int Acceptor :: OnPrepare(const PaxosMsg & oPaxosMsg)
     PLGHead("END Now.InstanceID %lu ReplyNodeID %lu",
             GetInstanceID(), oPaxosMsg.nodeid());;
 
-    SendMessage(iReplyNodeID, oReplyPaxosMsg);
+    SendMessage(iReplyNodeID, oReplyPaxosMsg);//返回提议结果给proposer
 
     return 0;
 }
@@ -299,7 +299,7 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
 
     BallotNumber oBallot(oPaxosMsg.proposalid(), oPaxosMsg.nodeid());
 
-    if (oBallot >= m_oAcceptorState.GetPromiseBallot())
+    if (oBallot >= m_oAcceptorState.GetPromiseBallot())//大于承诺的提议号才接受
     {
         PLGDebug("[Promise] State.PromiseID %lu State.PromiseNodeID %lu "
                 "State.PreAcceptedID %lu State.PreAcceptedNodeID %lu",
@@ -309,7 +309,7 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
                 m_oAcceptorState.GetAcceptedBallot().m_llNodeID);
 
         m_oAcceptorState.SetPromiseBallot(oBallot);
-        m_oAcceptorState.SetAcceptedBallot(oBallot);
+        m_oAcceptorState.SetAcceptedBallot(oBallot); //设置接受的提议号跟值
         m_oAcceptorState.SetAcceptedValue(oPaxosMsg.value());
         
         int ret = m_oAcceptorState.Persist(GetInstanceID(), GetLastChecksum());
@@ -333,7 +333,7 @@ void Acceptor :: OnAccept(const PaxosMsg & oPaxosMsg)
                 m_oAcceptorState.GetPromiseBallot().m_llProposalID, 
                 m_oAcceptorState.GetPromiseBallot().m_llNodeID);
         
-        oReplyPaxosMsg.set_rejectbypromiseid(m_oAcceptorState.GetPromiseBallot().m_llProposalID);
+        oReplyPaxosMsg.set_rejectbypromiseid(m_oAcceptorState.GetPromiseBallot().m_llProposalID);//拒绝提议
     }
 
     nodeid_t iReplyNodeID = oPaxosMsg.nodeid();

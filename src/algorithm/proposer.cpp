@@ -30,7 +30,7 @@ namespace phxpaxos
 ProposerState :: ProposerState(const Config * poConfig)
 {
     m_poConfig = (Config *)poConfig;
-    m_llProposalID = 1;
+    m_llProposalID = 1; //议案的ID，每个proposer有独立的一份，每次提出新议案就递增。
     Init();
 }
 
@@ -284,7 +284,7 @@ void Proposer :: Prepare(const bool bNeedNewBallot)
             GetInstanceID(), m_poConfig->GetMyNodeID(), m_oProposerState.GetProposalID(),
             m_oProposerState.GetValue().size());
 
-    BP->GetProposerBP()->Prepare();
+    BP->GetProposerBP()->Prepare(); 
     m_oTimeStat.Point();
     
     ExitAccept();
@@ -292,25 +292,25 @@ void Proposer :: Prepare(const bool bNeedNewBallot)
     m_bCanSkipPrepare = false;
     m_bWasRejectBySomeone = false;
 
-    m_oProposerState.ResetHighestOtherPreAcceptBallot();
+    m_oProposerState.ResetHighestOtherPreAcceptBallot(); //重置掉上轮最大提案编号
     if (bNeedNewBallot)
     {
-        m_oProposerState.NewPrepare();
+        m_oProposerState.NewPrepare();//本地提案编号++
     }
 
     PaxosMsg oPaxosMsg;
     oPaxosMsg.set_msgtype(MsgType_PaxosPrepare);
-    oPaxosMsg.set_instanceid(GetInstanceID());
-    oPaxosMsg.set_nodeid(m_poConfig->GetMyNodeID());
-    oPaxosMsg.set_proposalid(m_oProposerState.GetProposalID());
+    oPaxosMsg.set_instanceid(GetInstanceID());  //paxos算法实例，每个实例用于确定一个值，然后销毁。
+    oPaxosMsg.set_nodeid(m_poConfig->GetMyNodeID());//节点ID，可能使用通信的
+    oPaxosMsg.set_proposalid(m_oProposerState.GetProposalID());//提案的ID
 
-    m_oMsgCounter.StartNewRound();
+    m_oMsgCounter.StartNewRound(); //结果统计状态重置。开始新一轮提案
 
-    AddPrepareTimer();
+    AddPrepareTimer(); //开启一个计时
 
     PLGHead("END OK");
 
-    BroadcastMessage(oPaxosMsg);
+    BroadcastMessage(oPaxosMsg); //把消息广播出去。
 }
 
 void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
@@ -353,7 +353,7 @@ void Proposer :: OnPrepareReply(const PaxosMsg & oPaxosMsg)
         m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
     }
 
-    if (m_oMsgCounter.IsPassedOnThisRound())
+    if (m_oMsgCounter.IsPassedOnThisRound()) //这轮的提议通过了，进入accept阶段，提出自己的议案内容。
     {
         int iUseTimeMs = m_oTimeStat.Point();
         BP->GetProposerBP()->PreparePass(iUseTimeMs);
@@ -382,7 +382,7 @@ void Proposer :: OnExpiredPrepareReply(const PaxosMsg & oPaxosMsg)
     }
 }
 
-void Proposer :: Accept()
+void Proposer :: Accept() //提出自己的议案内容。
 {
     PLGHead("START ProposalID %lu ValueSize %zu ValueLen %zu", 
             m_oProposerState.GetProposalID(), m_oProposerState.GetValue().size(), m_oProposerState.GetValue().size());
@@ -407,7 +407,7 @@ void Proposer :: Accept()
 
     PLGHead("END");
 
-    BroadcastMessage(oPaxosMsg, BroadcastMessage_Type_RunSelf_Final);
+    BroadcastMessage(oPaxosMsg, BroadcastMessage_Type_RunSelf_Final); //内容广播出去
 }
 
 void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
@@ -425,7 +425,7 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
         return;
     }
 
-    if (oPaxosMsg.proposalid() != m_oProposerState.GetProposalID())
+    if (oPaxosMsg.proposalid() != m_oProposerState.GetProposalID())//已经是旧的议案ID，直接忽略掉。
     {
         //PLGErr("ProposalID not same, skip this msg");
         BP->GetProposerBP()->OnAcceptReplyNotSameProposalIDMsg();
@@ -441,21 +441,21 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
     }
     else
     {
-        PLGDebug("[Reject]");
+        PLGDebug("[Reject]"); //为什么会被拒绝呢，在这个proposer进入accept阶段前。可能有更大的提议号提出。
         m_oMsgCounter.AddReject(oPaxosMsg.nodeid());
 
         m_bWasRejectBySomeone = true;
 
-        m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());
+        m_oProposerState.SetOtherProposalID(oPaxosMsg.rejectbypromiseid());//更新本地提议号到更新的。
     }
 
-    if (m_oMsgCounter.IsPassedOnThisRound())
+    if (m_oMsgCounter.IsPassedOnThisRound()) //accept阶段是否通过了。
     {
         int iUseTimeMs = m_oTimeStat.Point();
         BP->GetProposerBP()->AcceptPass(iUseTimeMs);
         PLGImp("[Pass] Start send learn, usetime %dms", iUseTimeMs);
         ExitAccept();
-        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID());
+        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID());//同步都learner
     }
     else if (m_oMsgCounter.IsRejectedOnThisRound()
             || m_oMsgCounter.IsAllReceiveOnThisRound())
