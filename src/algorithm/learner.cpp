@@ -541,7 +541,7 @@ void Learner :: OnSendLearnValue_Ack(const PaxosMsg & oPaxosMsg)
 
 //////////////////////////////////////////////////////////////
 
-void Learner :: TransmitToFollower()
+void Learner :: TransmitToFollower() //通知到其他learner
 {
     if (m_poConfig->GetMyFollowerCount() == 0)
     {
@@ -619,7 +619,7 @@ void Learner :: OnProposerSendSuccess(const PaxosMsg & oPaxosMsg)
     }
 
     //learn value.
-    m_oLearnerState.LearnValueWithoutWrite(
+    m_oLearnerState.LearnValueWithoutWrite( //learn 记录被接受的提案内容
             oPaxosMsg.instanceid(),
             m_poAcceptor->GetAcceptorState()->GetAcceptedValue(),
             m_poAcceptor->GetAcceptorState()->GetChecksum());

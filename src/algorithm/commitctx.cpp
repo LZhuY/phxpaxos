@@ -134,7 +134,7 @@ int CommitCtx :: GetResult(uint64_t & llSuccInstanceID)
 {
     m_oSerialLock.Lock();
 
-    while (!m_bIsCommitEnd)
+    while (!m_bIsCommitEnd) //死等知道SetResult接口被调用
     {
         m_oSerialLock.WaitTime(1000);
     }

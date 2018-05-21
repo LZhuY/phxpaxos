@@ -660,7 +660,7 @@ int Instance :: ReceiveMsgForAcceptor(const PaxosMsg & oPaxosMsg, const bool bIs
     return 0;
 }
 
-int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
+int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg) //信息处理接口
 {
     if (oPaxosMsg.msgtype() == MsgType_PaxosLearner_AskforLearn)
     {
@@ -672,7 +672,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg)
     }
     else if (oPaxosMsg.msgtype() == MsgType_PaxosLearner_ProposerSendSuccess)
     {
-        m_oLearner.OnProposerSendSuccess(oPaxosMsg);
+        m_oLearner.OnProposerSendSuccess(oPaxosMsg);//有提议被处理了
     }
     else if (oPaxosMsg.msgtype() == MsgType_PaxosLearner_SendNowInstanceID)
     {

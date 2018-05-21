@@ -135,7 +135,7 @@ int Committer :: NewValueGetIDNoRetry(const std::string & sValue, uint64_t & llI
     m_poCommitCtx->NewCommit(&sPackSMIDValue, poSMCtx, iLeftTimeoutMs);
     m_poIOLoop->AddNotify();
 
-    int ret = m_poCommitCtx->GetResult(llInstanceID);
+    int ret = m_poCommitCtx->GetResult(llInstanceID); //这里就是循环等，一直等paxos处理完成，learn返回到结果。
 
     m_oWaitLock.UnLock();
     return ret;

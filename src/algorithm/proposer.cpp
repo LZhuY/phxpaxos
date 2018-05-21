@@ -455,7 +455,7 @@ void Proposer :: OnAcceptReply(const PaxosMsg & oPaxosMsg)
         BP->GetProposerBP()->AcceptPass(iUseTimeMs);
         PLGImp("[Pass] Start send learn, usetime %dms", iUseTimeMs);
         ExitAccept();
-        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID());//同步都learner
+        m_poLearner->ProposerSendSuccess(GetInstanceID(), m_oProposerState.GetProposalID());//提议通过后就通知learner记录通过的提议内容
     }
     else if (m_oMsgCounter.IsRejectedOnThisRound()
             || m_oMsgCounter.IsAllReceiveOnThisRound())
