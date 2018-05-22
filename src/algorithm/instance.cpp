@@ -710,7 +710,7 @@ int Instance :: ReceiveMsgForLearner(const PaxosMsg & oPaxosMsg) //信息处理�
             PLGHead("My commit ok, usetime %dms", iUseTimeMs);
         }
 
-        if (!SMExecute(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), bIsMyCommit, poSMCtx))
+        if (!SMExecute(m_oLearner.GetInstanceID(), m_oLearner.GetLearnValue(), bIsMyCommit, poSMCtx)) //完成的提议交给状态机处理
         {
             BP->GetInstanceBP()->OnInstanceLearnedSMExecuteFail();
 

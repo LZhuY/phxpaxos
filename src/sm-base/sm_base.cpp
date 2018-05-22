@@ -108,7 +108,7 @@ bool SMFac :: BatchExecute(const int iGroupIdx, const uint64_t llInstanceID, con
 
 bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID, 
         const std::string & sBodyValue, const int iSMID, SMCtx * poSMCtx)
-{
+{   //状态机处理指令接口
     if (iSMID == 0)
     {
         PLG1Imp("Value no need to do sm, just skip, instanceid %lu", llInstanceID);
@@ -123,7 +123,7 @@ bool SMFac :: DoExecute(const int iGroupIdx, const uint64_t llInstanceID,
 
     for (auto & poSM : m_vecSMList)
     {
-        if (poSM->SMID() == iSMID)
+        if (poSM->SMID() == iSMID) //交给对应编号的状态机处理
         {
             return poSM->Execute(iGroupIdx, llInstanceID, sBodyValue, poSMCtx);
         }
