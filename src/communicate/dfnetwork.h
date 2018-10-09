@@ -48,7 +48,7 @@ public:
 private:
     UDPRecv m_oUDPRecv;
     UDPSend m_oUDPSend;
-    TcpIOThread m_oTcpIOThread;
+    TcpIOThread m_oTcpIOThread; //IO Loop线程，用于异步发送消息。
 };
 
 }

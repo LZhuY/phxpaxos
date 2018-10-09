@@ -190,8 +190,8 @@ void ProposeBatch :: Run()
 
         oTimeStat.Point();
 
-        vector<PendingProposal> vecRequest;
-        PluckProposal(vecRequest);
+        vector<PendingProposal> vecRequest; 
+        PluckProposal(vecRequest); //拿到列表中的全部提议
 
         oLock.unlock();
         DoPropose(vecRequest);
@@ -270,7 +270,7 @@ void ProposeBatch :: OnlyOnePropose(PendingProposal & oPendingProposal)
     oPendingProposal.poNotifier->SendNotify(ret);
 }
 
-void ProposeBatch :: DoPropose(std::vector<PendingProposal> & vecRequest)
+void ProposeBatch :: DoPropose(std::vector<PendingProposal> & vecRequest) //批量提交多个提议
 {
     if (vecRequest.size() == 0)
     {

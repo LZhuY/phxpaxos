@@ -205,7 +205,7 @@ void PNode :: RunMaster(const Options & oOptions)
         {
             if (!m_vecGroupList[oGroupSMInfo.iGroupIdx]->GetConfig()->IsIMFollower())
             {
-                m_vecMasterList[oGroupSMInfo.iGroupIdx]->RunMaster();
+                m_vecMasterList[oGroupSMInfo.iGroupIdx]->RunMaster(); //提议自己成master
             }
             else
             {
@@ -249,7 +249,8 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
         return ret;
     }
 
-    //step3 build masterlist
+    //step3 build masterlist //每个节点一个MasterMgr，用于管理阶段，选举主节点等。mastermgr有自己状态机，通过excuse改变master节点，每个master节点
+    //租用一段时间。时间完后重新租。
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
         MasterMgr * poMaster = new MasterMgr(this, iGroupIdx, poLogStorage, oOptions.pMasterChangeCallback);
@@ -263,7 +264,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
         }
     }
 
-    //step4 build grouplist
+    //step4 build grouplist //初始化group,每个pnode多个group,一个group一个instance，一个instance有完整的paxos算法角色。
     for (int iGroupIdx = 0; iGroupIdx < oOptions.iGroupCount; iGroupIdx++)
     {
         Group * poGroup = new Group(poLogStorage, poNetWork, m_vecMasterList[iGroupIdx]->GetMasterSM(), iGroupIdx, oOptions);
@@ -311,7 +312,7 @@ int PNode :: Init(const Options & oOptions, NetWork *& poNetWork)
     for (auto & poGroup : m_vecGroupList)
     {
         //start group's thread first.
-        poGroup->Start();
+        poGroup->Start(); 
     }
     RunMaster(oOptions);
     RunProposeBatch();
@@ -344,7 +345,7 @@ int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t &
 int PNode :: Propose(const int iGroupIdx, const std::string & sValue, uint64_t & llInstanceID, SMCtx * poSMCtx)
 {
     if (!CheckGroupID(iGroupIdx))
-    {
+    {k 
         return Paxos_GroupIdxWrong;
     }
 
@@ -486,7 +487,7 @@ int PNode :: ProposalMembership(
     oCtx.m_pCtx = (void *)&smret;
 
     uint64_t llInstanceID = 0;
-    ret = Propose(iGroupIdx, sOpValue, llInstanceID, &oCtx);
+    ret = Propose(iGroupIdx, sOpValue, llInstanceID, &oCtx); //添加新节点信息广播出去。
     if (ret != 0)
     {
         return ret;

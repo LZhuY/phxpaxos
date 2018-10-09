@@ -113,13 +113,13 @@ private:
     void RunProposeBatch();
 
 private:
-    std::vector<Group *> m_vecGroupList;
+    std::vector<Group *> m_vecGroupList; //一个节点有多个组，每个组一个instance。instance里面有每种角色。
     std::vector<MasterMgr *> m_vecMasterList;
     std::vector<ProposeBatch *> m_vecProposeBatch;
 
 private:
-    MultiDatabase m_oDefaultLogStorage;
-    DFNetWork m_oDefaultNetWork;
+    MultiDatabase m_oDefaultLogStorage;//存储模块
+    DFNetWork m_oDefaultNetWork; //网络通信模块,封装了SendMessageTCP、SendMessageUDP两个接口。开启了多个IO loop线程。消息直接丢到这些线程完事。
     NotifierPool m_oNotifierPool;
 
     nodeid_t m_iMyNodeID;

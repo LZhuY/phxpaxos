@@ -74,7 +74,7 @@ void DFNetWork :: RunNetWork()
 
 int DFNetWork :: SendMessageTCP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage)
 {
-    return m_oTcpIOThread.AddMessage(iGroupIdx, sIp, iPort, sMessage);
+    return m_oTcpIOThread.AddMessage(iGroupIdx, sIp, iPort, sMessage); //消息丢给IO线程就完事了。
 }
 
 int DFNetWork :: SendMessageUDP(const int iGroupIdx, const std::string & sIp, const int iPort, const std::string & sMessage)

@@ -33,7 +33,7 @@ MasterMgr :: MasterMgr(
     MasterChangeCallback pMasterChangeCallback) 
     : m_oDefaultMasterSM(poLogStorage, poPaxosNode->GetMyNodeID(), iGroupIdx, pMasterChangeCallback) 
 {
-    m_iLeaseTime = 10000;
+    m_iLeaseTime = 10000; //每个leader租用时间
 
     m_poPaxosNode = (Node *)poPaxosNode;
     m_iMyGroupIdx = iGroupIdx;
@@ -127,7 +127,7 @@ void MasterMgr :: TryBeMaster(const int iLeaseTime)
     //step 1 check exist master and get version
     m_oDefaultMasterSM.SafeGetMaster(iMasterNodeID, llMasterVersion);
 
-    if (iMasterNodeID != nullnode && (iMasterNodeID != m_poPaxosNode->GetMyNodeID()))
+    if (iMasterNodeID != nullnode && (iMasterNodeID != m_poPaxosNode->GetMyNodeID())) //如果上次的租约时间到了，则现在没有master，所有节点都可以发起请求成为master
     {
         PLG1Imp("Ohter as master, can't try be master, masterid %lu myid %lu", 
                 iMasterNodeID, m_poPaxosNode->GetMyNodeID());

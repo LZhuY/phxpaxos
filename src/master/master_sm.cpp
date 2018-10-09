@@ -100,7 +100,7 @@ int MasterStateMachine :: UpdateMasterToStore(const nodeid_t llMasterNodeID, con
     return m_oMVStore.Write(oWriteOptions, m_iMyGroupIdx, oVariables);
 }
 
-int MasterStateMachine :: LearnMaster(
+int MasterStateMachine :: LearnMaster( //更新当前master节点信息
         const uint64_t llInstanceID, 
         const MasterOperator & oMasterOper, 
         const uint64_t llAbsMasterTimeout)
@@ -186,11 +186,11 @@ void MasterStateMachine :: SafeGetMaster(nodeid_t & iMasterNodeID, uint64_t & ll
 
     if (Time::GetSteadyClockMS() >= m_llAbsExpireTime)
     {
-        iMasterNodeID = nullnode;
+        iMasterNodeID = nullnode; //如果上次的租约时间已经到了，当前没有节点是master，返回nullnode,这时所有节点可以申请成为master
     }
     else
     {
-        iMasterNodeID = m_iMasterNodeID;
+        iMasterNodeID = m_iMasterNodeID; //当前有master
     }
 
     llMasterVersion = m_llMasterVersion;
@@ -222,7 +222,7 @@ const bool MasterStateMachine :: IsIMMaster() const
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 bool MasterStateMachine :: Execute(const int iGroupIdx, const uint64_t llInstanceID, 
-        const std::string & sValue, SMCtx * poSMCtx)
+        const std::string & sValue, SMCtx * poSMCtx) //状态机状态转换接口
 {
     MasterOperator oMasterOper;
     bool bSucc = oMasterOper.ParseFromArray(sValue.data(), sValue.size());

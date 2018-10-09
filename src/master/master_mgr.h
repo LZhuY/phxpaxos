@@ -56,9 +56,9 @@ public:
     MasterStateMachine * GetMasterSM();
 
 private:
-    Node * m_poPaxosNode;
+    Node * m_poPaxosNode; //持有上层node节点
 
-    MasterStateMachine m_oDefaultMasterSM;
+    MasterStateMachine m_oDefaultMasterSM; //master状态机，所有节点可以申请成为master。通过excute接口改变状态。
 
 private:
     int m_iLeaseTime;
@@ -66,7 +66,7 @@ private:
     bool m_bIsEnd;
     bool m_bIsStarted;
 
-    int m_iMyGroupIdx;
+    int m_iMyGroupIdx; //每个group一个master。用于选举leader等。
 
     bool m_bNeedDropMaster;
 };
